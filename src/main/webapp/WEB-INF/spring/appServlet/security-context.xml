@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<security:authentication-manager>
+		<security:authentication-provider
+			user-service-ref="userDetailsServiceImp">
+			<!-- <security:jdbc-user-service data-source-ref="dataSource"
+				users-by-username-query="select username, password, enabled from users where username=?"
+				authorities-by-username-query="select username, authority from users where username=?" /> -->
+			<!-- <security:user-service>
+				<security:user name="admin" authorities="ROLE_ADMIN"
+					password="1111" />
+			</security:user-service>  -->
+		</security:authentication-provider>
+	</security:authentication-manager>
+	
+	
+	<security:http auto-config="true" use-expressions="true">
+		<security:intercept-url pattern="/admin/**"
+			access='hasRole("ROLE_ADMIN")' />
+		<security:intercept-url pattern="/result/**"
+			access='hasRole("ROLE_USER")' />
+		
+		<security:form-login login-page="/login"
+			authentication-success-handler-ref="loginSuccessHandler"
+			password-parameter="password"
+			authentication-failure-handler-ref="loginFailureHandler"
+			username-parameter="username" />
+
+		<security:access-denied-handler error-page="/login" />
+		<security:session-management invalid-session-url="/login"/>
+	</security:http>
+
+	<bean id="loginSuccessHandler" class="com.minj.checkYourGrades.handler.LoginSuccessHandler"/>
+	<bean id="loginFailureHandler" class="com.minj.checkYourGrades.handler.LoginFailureHandler"/>
+	<bean id="userDetailsServiceImp" class="com.minj.checkYourGrades.service.UserDetailsServiceImp"/>
+</beans>
